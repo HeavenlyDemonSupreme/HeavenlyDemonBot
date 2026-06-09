@@ -1,2 +1,4 @@
 node_modules/
 .env
+players.json
+note.md

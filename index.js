@@ -62,6 +62,70 @@ app.command("/hdb-status", async({ command, ack, respond }) => {
   await respond({ text: player.getStatusText() });
 });
 
+app.command("/hdb-breakthrough", async({ command, ack, respond }) => {
+  await ack();
+  const data = loadCharacter(command.user_id);
+  if (!data) {
+    await respond("You don't have a character yet.");
+    return;
+  }
+
+  const player = new Character(data)
+
+  if (player.pendingDecision) {
+    await respond("You already have a pending decision.");
+    return;
+  }
+  
+  const message = player.getBreakthroughPreview();
+
+  saveCharacter(player);
+
+  await respond(message);
+});
+
+app.command("/hdb-yes", async({ command, ack, respond }) => {
+  await ack();
+  const data = loadCharacter(command.user_id);
+
+  if (!data) {
+    await respond("You don't have a character yet.");
+    return;
+  }
+
+  const player = new Character(data);
+
+  if (player.pendingDecision) {
+    await respond("You already have a pending decision.");
+    return;
+  }
+
+  const result = player.decisionHandler(true);
+  saveCharacter(player);
+  await respond(result);
+});
+
+app.command("/hdb-no", async({ command, ack, respond }) => {
+  await ack();
+  const data = loadCharacter(command.user_id);
+
+  if (!data) {
+    await respond("You don't have a character yet.");
+    return;
+  }
+
+  const player = new Character(data);
+
+  if (player.pendingDecision) {
+    await respond("You already have a pending decision.");
+    return;
+  }
+
+  const result = player.decisionHandler(false);
+  saveCharacter(player);
+  await respond(result);
+});
+
 (async () => {
   try {
     await app.start();
